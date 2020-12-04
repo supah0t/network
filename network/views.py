@@ -1,14 +1,23 @@
+import json
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
+from django.http import JsonResponse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from .models import User, Comment
+from .forms import Comment_Form
 
 from .models import User
 
 
 def index(request):
-    return render(request, "network/index.html")
+    form = Comment_Form()
+    user = request.user
+    return render(request, "network/index.html", {
+        'form': form,
+        'user': user
+    })
 
 
 def login_view(request):
@@ -61,3 +70,23 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "network/register.html")
+
+
+def new_post(request):
+    
+    #Ensure that method is POST
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)    
+        
+    #Get post data
+    data = json.loads(request.body)
+    post = data.get("comment", "")
+    user = User.objects.get(pk=request.user)
+    
+    comment = Comment(
+        user = user,
+        comment = post
+    )
+    comment.save()
+    
+    return JsonResponse({"message": "Post posted successfully."}, status=201)

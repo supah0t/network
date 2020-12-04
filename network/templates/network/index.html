@@ -1,5 +1,26 @@
 {% extends "network/layout.html" %}
+{% load static %}
 
 {% block body %}
-    TODO
+    {% if user.is_authenticated %}
+    <h1 class="header">All Posts</h1>
+        <div class="element-box">
+            <form id="post-form" class="comment-form">
+                <h3>New Post</h3>
+                <!--
+                    {% csrf_token %}
+                {{ form }}
+                -->
+                <div id="test"></div>
+                <input id="post-body">
+                
+                <div class="gap-10"></div>
+                <button id="post" class="btn btn-primary">Hello</button>
+            </form>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'network/posts.js' %}"></script>
 {% endblock %}
