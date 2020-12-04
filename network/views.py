@@ -5,9 +5,11 @@ from django.http import JsonResponse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
 from .models import User, Comment
 from .forms import Comment_Form
-
+from django.forms.models import model_to_dict
+from django.core import serializers
 from .models import User
 
 
@@ -71,17 +73,17 @@ def register(request):
     else:
         return render(request, "network/register.html")
 
-
+@csrf_exempt
 def new_post(request):
     
     #Ensure that method is POST
     if request.method != "POST":
         return JsonResponse({"error": "POST request required."}, status=400)    
         
-    #Get post data
+    #Get contents of post
     data = json.loads(request.body)
     post = data.get("comment", "")
-    user = User.objects.get(pk=request.user)
+    user = User.objects.get(pk=request.user.id)
     
     comment = Comment(
         user = user,
@@ -90,3 +92,11 @@ def new_post(request):
     comment.save()
     
     return JsonResponse({"message": "Post posted successfully."}, status=201)
+    
+
+def show_posts(request):
+    
+    posts = Comment.objects.all()
+    posts = posts.order_by("-timestamp").all()
+    
+    return JsonResponse([post.serialize() for post in posts], safe=False)
