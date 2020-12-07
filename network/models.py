@@ -3,7 +3,7 @@ from django.db import models
 
 
 class User(AbstractUser):
-    pass
+    following = models.ManyToManyField('self', null=True, blank=True, related_name="followers")
 
 
 class Comment(models.Model):

@@ -93,10 +93,18 @@ def new_post(request):
     
     return JsonResponse({"message": "Post posted successfully."}, status=201)
     
-
+#Super awesome inefficient way to add a value to the response data. Works tho
 def show_posts(request):
     
     posts = Comment.objects.all()
+
+    data = []
     posts = posts.order_by("-timestamp").all()
-    
-    return JsonResponse([post.serialize() for post in posts], safe=False)
+
+    for i in range(len(posts)):
+        username = posts[i].user.get_username()
+        entry = posts[i].serialize()
+        data.append(entry)
+        data[i]['username'] = username
+        
+    return JsonResponse(data, safe=False)

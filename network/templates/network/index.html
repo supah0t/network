@@ -6,7 +6,7 @@
     {% if user.is_authenticated %}
         <h1 class="header">All Posts</h1>
         <div class="element-box">
-            <form id="post-form" class="comment-form" onsubmit="return false">
+            <form id="post-form" class="comment-form">
                 <h3>New Post</h3>
                 {% csrf_token %}
                 {{ form }}
