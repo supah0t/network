@@ -96,15 +96,36 @@ def new_post(request):
 #Super awesome inefficient way to add a value to the response data. Works tho
 def show_posts(request):
     
-    posts = Comment.objects.all()
+        posts = Comment.objects.all()
 
-    data = []
-    posts = posts.order_by("-timestamp").all()
+        data = []
+        posts = posts.order_by("-timestamp").all()
 
-    for i in range(len(posts)):
-        username = posts[i].user.get_username()
-        entry = posts[i].serialize()
-        data.append(entry)
-        data[i]['username'] = username
+        for i in range(len(posts)):
+            username = posts[i].user.get_username()
+            entry = posts[i].serialize()
+            data.append(entry)
+            data[i]['username'] = username
+            
+        return JsonResponse(data, safe=False)
+    
+
+def show_profile(request, user):
+    
+    posts = Comment.objects.filter(user = user)
+    posts.order_by("-timestamp").all()
+    
+    #following = user.following.all().len()
+    #followers = user.followers.all().len()
+    
+    #follow = False
+    
+    #if request.user in user.followers.all():
+    #    follow = True
         
-    return JsonResponse(data, safe=False)
+    return render(request, "network/profile.html", {
+        "posts": posts,
+    #    "following": following,
+    #    "followers": followers,
+    #    "follow": follow
+    })

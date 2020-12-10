@@ -10,8 +10,6 @@ function test() {
   console.log("test successful");
 }
 
-
-
 function load_posts() {
     
     fetch('/show')
@@ -37,7 +35,7 @@ function load_posts() {
             </table>
           `
           
-          div.querySelector(".username-button").addEventListener('click', () => test());
+          div.querySelector(".username-button").addEventListener('click', () => window.location.href = `/${data[i].id}` );
           div.querySelector('.like-button').addEventListener('click', () => test());
           
           mainContainer.appendChild(div);
