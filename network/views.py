@@ -112,20 +112,31 @@ def show_posts(request):
 
 def show_profile(request, user):
     
-    posts = Comment.objects.filter(user = user)
+    if not isinstance(user, int):
+        user = 0
+
+    data = []
+    
+    user = User.objects.get(pk=user)
+    
+    posts = Comment.objects.filter(user=user)
     posts.order_by("-timestamp").all()
     
-    #following = user.following.all().len()
-    #followers = user.followers.all().len()
+    follow = False
     
-    #follow = False
+    if request.user in user.followers.all():
+        follow = True
     
-    #if request.user in user.followers.all():
-    #    follow = True
+    info = {
+        'following': len(user.following.all()),
+        'followers': len(user.followers.all()),
+        'follow': follow
+    }
+    
+    data.append(info)
+    
+    for i in range(len(posts)):
+        data.append(posts[i].serialize())
+    
         
-    return render(request, "network/profile.html", {
-        "posts": posts,
-    #    "following": following,
-    #    "followers": followers,
-    #    "follow": follow
-    })
+    return JsonResponse(data, safe=False)

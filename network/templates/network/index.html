@@ -3,20 +3,26 @@
 
 {% block body %}
 
-    {% if user.is_authenticated %}
-        <h1 class="header">All Posts</h1>
-        <div class="element-box">
-            <form id="post-form" class="comment-form">
-                <h3>New Post</h3>
-                {% csrf_token %}
-                {{ form }}
-                <div class="gap-10"></div>
-                <button id="post" type="submit" class="btn btn-primary">Post</button>
-            </form>
-        </div>    
-    {% endif %}
+
+    <div id="form-view">
+        {% if user.is_authenticated %}
+            <h1 class="header">All Posts</h1>
+            <div class="element-box">
+                <form id="post-form" class="comment-form">
+                    <h3>New Post</h3>
+                    {% csrf_token %}
+                    {{ form }}
+                    <div class="gap-10"></div>
+                    <button id="post" type="submit" class="btn btn-primary">Post</button>
+                </form>
+            </div>    
+        {% endif %}
+    </div>
+    
+    <div id="profile-view"></div>
     
     <div id="post-list"></div>
+    
 
 {% endblock %}
 

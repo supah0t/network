@@ -12,6 +12,10 @@ function test() {
 
 function load_posts() {
     
+    document.querySelector('#form-view').style.display = 'block';
+    document.querySelector('#post-list').style.display = 'block';
+    document.querySelector('#profile-view').style.display = 'none';    
+    
     fetch('/show')
     .then(response => response.json())
     .then(posts => {
@@ -35,7 +39,7 @@ function load_posts() {
             </table>
           `
           
-          div.querySelector(".username-button").addEventListener('click', () => window.location.href = `/${data[i].id}` );
+          div.querySelector(".username-button").addEventListener('click', () => load_profile(data[i].user));
           div.querySelector('.like-button').addEventListener('click', () => test());
           
           mainContainer.appendChild(div);
@@ -45,12 +49,43 @@ function load_posts() {
     });
 }
 
+function load_profile(id) {
+    
+    document.querySelector('#form-view').style.display = 'none';
+    document.querySelector('#post-list').style.display = 'block';
+    document.querySelector('#profile-view').style.display = 'block';   
+    
+    history.pushState('', 'Profile', `/${id}`);
+    
+    console.log('Profile View');
+    
+    fetch(`/${id}`)
+    .then(response => response.json())
+    .then(posts => {
+        
+        data = posts;
+        
+        //let profileInfo = document.getElementById("profile-view");
+        //let div = document.createElement('div');
+        //div.className = 'postList';
+        //
+        //div.innerHTML = `
+        //
+        //`
+        //
+        //let mainContainer = document.getElementById("post-list");
+        //mainContainer.innerHTML = "Hello";
+        
+        console.log(data);
+    })
+}
+
 function post_post() {
     
     const post = document.querySelector('#id_comment').value;
 
     fetch('/post', {
-        method: 'POST', 
+        method: 'POST',
         body: JSON.stringify({
           "comment": post
         })
