@@ -120,7 +120,7 @@ def show_profile(request, user):
     user = User.objects.get(pk=user)
     
     posts = Comment.objects.filter(user=user)
-    posts.order_by("-timestamp").all()
+    posts = posts.order_by("-timestamp").all()
     
     follow = False
     
@@ -128,6 +128,7 @@ def show_profile(request, user):
         follow = True
     
     info = {
+        'username': user.get_username(),
         'following': len(user.following.all()),
         'followers': len(user.followers.all()),
         'follow': follow

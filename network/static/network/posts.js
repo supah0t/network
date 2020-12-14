@@ -65,19 +65,44 @@ function load_profile(id) {
         
         data = posts;
         
-        //let profileInfo = document.getElementById("profile-view");
-        //let div = document.createElement('div');
-        //div.className = 'postList';
-        //
-        //div.innerHTML = `
-        //
-        //`
-        //
-        //let mainContainer = document.getElementById("post-list");
-        //mainContainer.innerHTML = "Hello";
+        info = data.shift();
+
+        let mainContainer = document.getElementById("post-list");
         
+        let profileContainer = document.getElementById("profile-view");
+        let divOne = document.createElement('div');
+        divOne.className = 'profileView';
+
+        divOne.innerHTML = `
+          <pre>${info.username}   Followers: ${info.followers}    Following: ${info.following}</pre>
+          ${info.follow ? `<button id="follow-button" class="btn btn-danger btn-sm">Follow</button>` : `<button id="follow-button" class="btn btn-danger btn-sm">Unfollow</button>`}
+        `
+        divOne.querySelector('#follow-button').addEventListener('click', () => console.log('followed'));
+
+        profileContainer.appendChild(divOne);
+
+        for (let i=0; i<data.length; i++) {
+          let div = document.createElement("div");
+          div.className = "postList";
+          
+          div.innerHTML = `
+            <table class="postTable">
+            <tr><button class="username-button">${data[i].username}</button></tr>
+            <tr><td><div class="gap-10"></div></td></tr>
+            <tr><td>${data[i].comment}</td></tr>
+            <tr><td class="timestamp">${data[i].timestamp}</td></tr>
+            <tr><td>&#10084;&#65039; (Like count)</td> <td class="like-button"><button class="btn btn-danger btn-sm">Like</button></td></tr>
+            </table>
+          `
+          div.querySelector('.like-button').addEventListener('click', () => test());
+          
+          mainContainer.appendChild(div);
+        }
+
         console.log(data);
-    })
+        console.log(info);
+      
+    });
 }
 
 function post_post() {
