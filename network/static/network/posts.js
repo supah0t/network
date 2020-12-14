@@ -14,8 +14,10 @@ function load_posts() {
     
     document.querySelector('#form-view').style.display = 'block';
     document.querySelector('#post-list').style.display = 'block';
-    document.querySelector('#profile-view').style.display = 'none';    
-    
+    document.querySelector('#post-list').innerHTML = '';
+    document.querySelector('#profile-view').style.display = 'none'; 
+    document.querySelector('#profile-view').innerHTML = ''; 
+
     fetch('/show')
     .then(response => response.json())
     .then(posts => {
@@ -53,7 +55,9 @@ function load_profile(id) {
     
     document.querySelector('#form-view').style.display = 'none';
     document.querySelector('#post-list').style.display = 'block';
+    document.querySelector('#post-list').innerHTML = '';
     document.querySelector('#profile-view').style.display = 'block';   
+    document.querySelector('#profile-view').innerHTML = '';
     
     history.pushState('', 'Profile', `/${id}`);
     
@@ -74,8 +78,10 @@ function load_profile(id) {
         divOne.className = 'profileView';
 
         divOne.innerHTML = `
-          <pre>${info.username}   Followers: ${info.followers}    Following: ${info.following}</pre>
-          ${info.follow ? `<button id="follow-button" class="btn btn-danger btn-sm">Follow</button>` : `<button id="follow-button" class="btn btn-danger btn-sm">Unfollow</button>`}
+          <div class="profile-info">
+            <pre>${info.username}   Followers: ${info.followers}    Following: ${info.following}</pre>
+            ${info.follow ? `<button id="follow-button" class="btn btn-danger btn-sm">Follow</button>` : `<button id="follow-button" class="btn btn-danger btn-sm">Unfollow</button>`}
+          </div>
         `
         divOne.querySelector('#follow-button').addEventListener('click', () => console.log('followed'));
 
@@ -87,7 +93,7 @@ function load_profile(id) {
           
           div.innerHTML = `
             <table class="postTable">
-            <tr><button class="username-button">${data[i].username}</button></tr>
+            <tr><p class="profile-username">${info.username}</p></tr>
             <tr><td><div class="gap-10"></div></td></tr>
             <tr><td>${data[i].comment}</td></tr>
             <tr><td class="timestamp">${data[i].timestamp}</td></tr>

@@ -128,7 +128,7 @@ def show_profile(request, user):
         follow = True
     
     info = {
-        'username': user.get_username(),
+        'username': posts[0].user.get_username(),
         'following': len(user.following.all()),
         'followers': len(user.followers.all()),
         'follow': follow
