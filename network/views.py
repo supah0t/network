@@ -109,35 +109,71 @@ def show_posts(request):
             
         return JsonResponse(data, safe=False)
     
+def followed_posts(request):
+    user = request.user
+    posts = Comment.objects.filter(user__in=[user.following.all()])
+
+    people = user.following.all()
+    people_list = []
+    for j in range(len(people)):
+        people_list.append(people[j].serialize()['id'])
+
+
+
+    posts = posts.order_by("-timestamp").all()
+
+    for i in range(len(posts)):
+        data.append(posts[i].serialize())
+        data[i]['username'] = posts[i].user.get_username()
+
+    return JsonResponse(data, safe=False)
+
 
 def show_profile(request, user):
     
     if not isinstance(user, int):
         user = 0
-
     data = []
-    
     user = User.objects.get(pk=user)
-    
     posts = Comment.objects.filter(user=user)
     posts = posts.order_by("-timestamp").all()
-    
     follow = False
-    
     if request.user in user.followers.all():
         follow = True
-    
+
+    myself = False
+    if request.user == user:
+        myself =True
+
     info = {
         'username': posts[0].user.get_username(),
         'following': len(user.following.all()),
         'followers': len(user.followers.all()),
-        'follow': follow
+        'follow': follow,
+        'myself': myself
     }
     
-    data.append(info)
-    
+    data.append(info)    
     for i in range(len(posts)):
         data.append(posts[i].serialize())
     
-        
     return JsonResponse(data, safe=False)
+
+@csrf_exempt
+def follow_user(request):
+    #Ensure that method is POST
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)   
+
+    #Get contents of post
+    data = json.loads(request.body)
+    toFollow = data.get("id", "error")
+    follow = data.get("follow", "error")
+    user = request.user
+    
+    if follow:
+        user.following.remove(toFollow)
+    else:
+        user.following.add(toFollow)
+
+    return JsonResponse({"message": "User followed successfully."}, status=201)

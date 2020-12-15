@@ -63,3 +63,14 @@ html *{
 .profile-username {
     margin: 10px;
 }
+
+.following-menu {
+    margin-bottom: 0;
+    padding-top: .5rem;
+    cursor: pointer;
+    color: rgba(0,0,0,.5);
+}
+
+.following-menu:hover {
+    color: rgba(0,0,0,.7);
+}

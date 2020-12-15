@@ -1,8 +1,13 @@
 {% extends "network/layout.html" %}
 {% load static %}
 
-{% block body %}
+{% block button %}
+    <li class="nav-item">
+        <p class="following-menu">Following</p>
+    </li>
+{% endblock %}
 
+{% block body %}
 
     <div id="form-view">
         {% if user.is_authenticated %}
@@ -23,7 +28,6 @@
     
     <div id="post-list"></div>
     
-
 {% endblock %}
 
 {% block script %}
