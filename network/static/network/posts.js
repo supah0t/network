@@ -4,11 +4,40 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('.following-menu').addEventListener('click', () => load_following_posts());
     
     load_posts();
+    test_posts();
 
   });
 
 function test() {
   console.log("test successful");
+}
+
+function test_posts() {
+
+  document.querySelector('#form-view').style.display = 'block';
+  document.querySelector('#post-list').style.display = 'block';
+  document.querySelector('#post-list').innerHTML = '';
+  document.querySelector('#profile-view').style.display = 'none'; 
+  document.querySelector('#profile-view').innerHTML = ''; 
+
+  fetch('/test')
+  .then(response => response.json())
+  .then(posts => {    
+    
+    let buttonDiv = document.querySelector('#page-button');
+    let buttonList = document.createElement('ul');
+    buttonList.className = "pagination justify-content-center";
+    buttonDiv.appendChild(buttonList);
+    
+    for (let i=0; i<posts.length; i++) {
+      console.log(posts[i]);
+      let button = document.createElement("li");
+      button.className="page-item";
+      button.innerHTML = `<button class="btn btn-primary">${i}</button>`
+      button.addEventListener('click', () => post_format(posts[i]));
+      buttonList.appendChild(button);
+    }
+  });
 }
 
 function load_following_posts() {
@@ -21,34 +50,8 @@ function load_following_posts() {
   fetch('/followed_posts')
   .then(response => response.json())
   .then(posts => {
-    data = posts;
-
-    let mainContainer = document.getElementById('post-list');
-
     history.pushState('', 'Following', `/following`);
-
-    console.log(data);
-
-    for (let i=0; i<data.length; i++) {
-      let div = document.createElement("div");
-      div.className = "postList";
-      
-      div.innerHTML = `
-        <table class="postTable">
-        <tr><button class="username-button">${data[i].username}</button></tr>
-        <tr><td><div class="gap-10"></div></td></tr>
-        <tr><td>${data[i].comment}</td></tr>
-        <tr><td class="timestamp">${data[i].timestamp}</td></tr>
-        <tr><td>&#10084;&#65039; (Like count)</td> <td class="like-button"><button class="btn btn-danger btn-sm">Like</button></td></tr>
-        </table>
-      `
-      
-      div.querySelector(".username-button").addEventListener('click', () => load_profile(data[i].user));
-      div.querySelector('.like-button').addEventListener('click', () => test());
-      
-      mainContainer.appendChild(div);
-      
-    }
+    post_format(posts);
   });
 }
 
@@ -63,33 +66,7 @@ function load_posts() {
     fetch('/show')
     .then(response => response.json())
     .then(posts => {
-        data = posts;
-        
-        let mainContainer = document.getElementById("post-list");
-        
-        console.log(data);
-        
-        for (let i=0; i<data.length; i++) {
-          let div = document.createElement("div");
-          div.className = "postList";
-          
-          div.innerHTML = `
-            <table class="postTable">
-            <tr><button class="username-button">${data[i].username}</button></tr>
-            <tr><td><div class="gap-10"></div></td></tr>
-            <tr><td>${data[i].comment}</td></tr>
-            <tr><td class="timestamp">${data[i].timestamp}</td></tr>
-            <tr><td>&#10084;&#65039; (Like count)</td> <td class="like-button"><button class="btn btn-danger btn-sm">Like</button></td></tr>
-            </table>
-          `
-          
-          div.querySelector(".username-button").addEventListener('click', () => load_profile(data[i].user));
-          div.querySelector('.like-button').addEventListener('click', () => test());
-          
-          mainContainer.appendChild(div);
-          
-        }
-        
+      post_format(posts);
     });
 }
 
@@ -187,5 +164,30 @@ function post_post() {
         //Print result
         console.log(result);
       });
-      
+}
+
+function post_format(data) {
+  let mainContainer = document.getElementById('post-list');
+  mainContainer.innerHTML = '';
+
+  for (let i=0; i<data.length; i++) {
+    let div = document.createElement("div");
+    div.className = "postList";
+    
+    div.innerHTML = `
+      <table class="postTable">
+      <tr><button class="username-button">${data[i].username}</button></tr>
+      <tr><td><div class="gap-10"></div></td></tr>
+      <tr><td>${data[i].comment}</td></tr>
+      <tr><td class="timestamp">${data[i].timestamp}</td></tr>
+      <tr><td>&#10084;&#65039; (Like count)</td> <td class="like-button"><button class="btn btn-danger btn-sm">Like</button></td></tr>
+      </table>
+    `
+    
+    div.querySelector(".username-button").addEventListener('click', () => load_profile(data[i].user));
+    div.querySelector('.like-button').addEventListener('click', () => test());
+    
+    mainContainer.appendChild(div);
+    
+  }
 }

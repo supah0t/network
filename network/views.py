@@ -11,6 +11,7 @@ from .forms import Comment_Form
 from django.forms.models import model_to_dict
 from django.core import serializers
 from .models import User
+from django.core.paginator import Paginator
 
 
 def index(request):
@@ -109,23 +110,40 @@ def show_posts(request):
             
         return JsonResponse(data, safe=False)
     
+
+def test_posts(request): 
+    posts = Comment.objects.all()
+
+    data = []
+    posts = posts.order_by("-timestamp").all()
+    for i in range(len(posts)):
+        username = posts[i].user.get_username()
+        entry = posts[i].serialize()
+        data.append(entry)
+        data[i]['username'] = username
+
+    paginator = Paginator(data, 10)
+    finalData = []
+    for i in range((paginator.num_pages)):
+        finalData.append(paginator.page(i + 1).object_list)
+        
+    return JsonResponse(finalData, safe=False)
+
+
+
 def followed_posts(request):
     user = request.user
-    posts = Comment.objects.filter(user__in=[user.following.all()])
-
+    
     people = user.following.all()
-    people_list = []
+    data = []
     for j in range(len(people)):
-        people_list.append(people[j].serialize()['id'])
-
-
-
-    posts = posts.order_by("-timestamp").all()
-
-    for i in range(len(posts)):
-        data.append(posts[i].serialize())
-        data[i]['username'] = posts[i].user.get_username()
-
+        person = people[j].id
+        posts = Comment.objects.filter(user = person)
+        posts = posts.order_by("-timestamp").all()
+        for i in range(len(posts)):
+            data.append(posts[i].serialize())
+            data[len(data) - 1]['username'] = posts[i].user.get_username()    
+        
     return JsonResponse(data, safe=False)
 
 
