@@ -76,5 +76,5 @@ html *{
 }
 
 .page-item {
-    padding: 5px;
+    cursor: pointer;
 }

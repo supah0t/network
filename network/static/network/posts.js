@@ -12,6 +12,7 @@ function test() {
   console.log("test successful");
 }
 
+//Test function for paginated response handling, have to apply to every function now
 function test_posts() {
 
   document.querySelector('#form-view').style.display = 'block';
@@ -33,13 +34,40 @@ function test_posts() {
       console.log(posts[i]);
       let button = document.createElement("li");
       button.className="page-item";
-      button.innerHTML = `<button class="btn btn-primary">${i}</button>`
+      button.id=`button${i}`
+      button.innerHTML = `<p data-page="button${i}" class="page-link" href=" ">${i}</p>`;
       button.addEventListener('click', () => post_format(posts[i]));
+      button.addEventListener('click', () => button_active(`button${i}`));
       buttonList.appendChild(button);
     }
+
   });
 }
 
+//Handles paginator buttons, indicated which one is selected
+function button_active(button) {
+  document.querySelectorAll('li[id^="button"]').forEach(thing => {
+    thing.className = "page-item"
+  });
+  document.querySelector(`#${button}`).className += " active";
+}
+
+//Since we have uniform post_format function this just handles the display values of the app areas
+function load_posts() {
+    document.querySelector('#form-view').style.display = 'block';
+    document.querySelector('#post-list').style.display = 'block';
+    document.querySelector('#post-list').innerHTML = '';
+    document.querySelector('#profile-view').style.display = 'none'; 
+    document.querySelector('#profile-view').innerHTML = ''; 
+
+    fetch('/show')
+    .then(response => response.json())
+    .then(posts => {
+      post_format(posts);
+    });
+}
+
+//Similar to load_posts(), only with posts from people the user follows
 function load_following_posts() {
   document.querySelector('#form-view').style.display = 'block';
   document.querySelector('#post-list').style.display = 'block';
@@ -55,23 +83,8 @@ function load_following_posts() {
   });
 }
 
-function load_posts() {
-    
-    document.querySelector('#form-view').style.display = 'block';
-    document.querySelector('#post-list').style.display = 'block';
-    document.querySelector('#post-list').innerHTML = '';
-    document.querySelector('#profile-view').style.display = 'none'; 
-    document.querySelector('#profile-view').innerHTML = ''; 
-
-    fetch('/show')
-    .then(response => response.json())
-    .then(posts => {
-      post_format(posts);
-    });
-}
-
+//Unoptimized profile view, GET request to server, server returns list in which list[0] is the profile info so I have to handle it differently from the rest of the list
 function load_profile(id) {
-    
     document.querySelector('#form-view').style.display = 'none';
     document.querySelector('#post-list').style.display = 'block';
     document.querySelector('#post-list').innerHTML = '';
@@ -79,23 +92,17 @@ function load_profile(id) {
     document.querySelector('#profile-view').innerHTML = '';
     
     history.pushState('', 'Profile', `/${id}`);
-    
-    console.log('Profile View');
-    
+    console.log('Profile View');    
     fetch(`/${id}`)
     .then(response => response.json())
     .then(posts => {
         
         data = posts;
-        
         info = data.shift();
-
         let mainContainer = document.getElementById("post-list");
-        
         let profileContainer = document.getElementById("profile-view");
         let divOne = document.createElement('div');
         divOne.className = 'profileView';
-
         divOne.innerHTML = `
           <div class="profile-info">
             <pre>${info.username}   Followers: ${info.followers}    Following: ${info.following}</pre>
@@ -134,6 +141,7 @@ function load_profile(id) {
     });
 }
 
+//Post request to server when a user if followed
 function follow_user(id, follow) {
   fetch('/follow', {
     method: 'POST',
@@ -149,10 +157,9 @@ function follow_user(id, follow) {
   })
 }
 
+//Post request to server when a post is submited
 function post_post() {
-    
     const post = document.querySelector('#id_comment').value;
-
     fetch('/post', {
         method: 'POST',
         body: JSON.stringify({
@@ -166,6 +173,7 @@ function post_post() {
       });
 }
 
+//Presents posts from django response in a uniform way for the whole app
 function post_format(data) {
   let mainContainer = document.getElementById('post-list');
   mainContainer.innerHTML = '';
