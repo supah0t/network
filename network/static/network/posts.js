@@ -4,53 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('.following-menu').addEventListener('click', () => load_following_posts());
     
     load_posts();
-    test_posts();
-
   });
-
-function test() {
-  console.log("test successful");
-}
-
-//Test function for paginated response handling, have to apply to every function now
-function test_posts() {
-
-  document.querySelector('#form-view').style.display = 'block';
-  document.querySelector('#post-list').style.display = 'block';
-  document.querySelector('#post-list').innerHTML = '';
-  document.querySelector('#profile-view').style.display = 'none'; 
-  document.querySelector('#profile-view').innerHTML = ''; 
-
-  fetch('/test')
-  .then(response => response.json())
-  .then(posts => {    
-    
-    let buttonDiv = document.querySelector('#page-button');
-    let buttonList = document.createElement('ul');
-    buttonList.className = "pagination justify-content-center";
-    buttonDiv.appendChild(buttonList);
-    
-    for (let i=0; i<posts.length; i++) {
-      console.log(posts[i]);
-      let button = document.createElement("li");
-      button.className="page-item";
-      button.id=`button${i}`
-      button.innerHTML = `<p data-page="button${i}" class="page-link" href=" ">${i}</p>`;
-      button.addEventListener('click', () => post_format(posts[i]));
-      button.addEventListener('click', () => button_active(`button${i}`));
-      buttonList.appendChild(button);
-    }
-
-  });
-}
-
-//Handles paginator buttons, indicated which one is selected
-function button_active(button) {
-  document.querySelectorAll('li[id^="button"]').forEach(thing => {
-    thing.className = "page-item"
-  });
-  document.querySelector(`#${button}`).className += " active";
-}
 
 //Since we have uniform post_format function this just handles the display values of the app areas
 function load_posts() {
@@ -63,7 +17,7 @@ function load_posts() {
     fetch('/show')
     .then(response => response.json())
     .then(posts => {
-      post_format(posts);
+      paginate_posts(posts);
     });
 }
 
@@ -79,7 +33,7 @@ function load_following_posts() {
   .then(response => response.json())
   .then(posts => {
     history.pushState('', 'Following', `/following`);
-    post_format(posts);
+    paginate_posts(posts);
   });
 }
 
@@ -91,7 +45,7 @@ function load_profile(id) {
     document.querySelector('#profile-view').style.display = 'block';   
     document.querySelector('#profile-view').innerHTML = '';
     
-    history.pushState('', 'Profile', `/${id}`);
+    //history.pushState('', 'Profile', `/${id}`);
     console.log('Profile View');    
     fetch(`/${id}`)
     .then(response => response.json())
@@ -114,30 +68,9 @@ function load_profile(id) {
         if (info.myself === true) {
           divOne.querySelector('#follow-button').style.display = 'none';
         }
-
         profileContainer.appendChild(divOne);
 
-        for (let i=0; i<data.length; i++) {
-          let div = document.createElement("div");
-          div.className = "postList";
-          
-          div.innerHTML = `
-            <table class="postTable">
-            <tr><p class="profile-username">${info.username}</p></tr>
-            <tr><td><div class="gap-10"></div></td></tr>
-            <tr><td>${data[i].comment}</td></tr>
-            <tr><td class="timestamp">${data[i].timestamp}</td></tr>
-            <tr><td>&#10084;&#65039; (Like count)</td> <td class="like-button"><button class="btn btn-danger btn-sm">Like</button></td></tr>
-            </table>
-          `
-          div.querySelector('.like-button').addEventListener('click', () => test());
-          
-          mainContainer.appendChild(div);
-        }
-
-        console.log(data);
-        console.log(info);
-      
+        paginate_posts(data);
     });
 }
 
@@ -184,7 +117,7 @@ function post_format(data) {
     
     div.innerHTML = `
       <table class="postTable">
-      <tr><button class="username-button">${data[i].username}</button></tr>
+      <tr><td><button class="username-button">${data[i].username}</button></td>${ data[i].myself ? `<button class="btn btn-alert btn-sm">Edit</button>`: ``}<td></td></tr>
       <tr><td><div class="gap-10"></div></td></tr>
       <tr><td>${data[i].comment}</td></tr>
       <tr><td class="timestamp">${data[i].timestamp}</td></tr>
@@ -196,6 +129,39 @@ function post_format(data) {
     div.querySelector('.like-button').addEventListener('click', () => test());
     
     mainContainer.appendChild(div);
-    
   }
+  console.log(data);
+  console.log(data[0].myself);
+}
+
+//Test function for paginated response handling, have to apply to every function now
+function paginate_posts(posts) { 
+    
+  let buttonDiv = document.querySelector('#page-button');
+  buttonDiv.innerHTML = '';
+  let buttonList = document.createElement('ul');
+  buttonList.className = "pagination justify-content-center";
+  buttonDiv.appendChild(buttonList);
+  
+  for (let i=0; i<posts.length; i++) {
+    console.log(posts[i]);
+    let button = document.createElement("li");
+    button.className="page-item";
+    button.id=`button${i}`
+    button.innerHTML = `<p data-page="button${i}" class="page-link" href=" ">${i}</p>`;
+    button.addEventListener('click', () => post_format(posts[i]));
+    button.addEventListener('click', () => button_active(`button${i}`));
+    buttonList.appendChild(button);
+  }
+
+  post_format(posts[0]);
+  document.querySelector(`#button0`).className += " active";
+}
+
+//Handles paginator buttons, indicated which one is selected
+function button_active(button) {
+  document.querySelectorAll('li[id^="button"]').forEach(thing => {
+    thing.className = "page-item"
+  });
+  document.querySelector(`#${button}`).className += " active";
 }
