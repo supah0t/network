@@ -97,18 +97,23 @@ def new_post(request):
 #Super awesome inefficient way to add a value to the response data. Works tho
 def show_posts(request):
     
-        posts = Comment.objects.all()
+    posts = Comment.objects.all()
 
-        data = []
-        posts = posts.order_by("-timestamp").all()
+    data = []
+    posts = posts.order_by("-timestamp").all()
+    for i in range(len(posts)):
+        username = posts[i].user.get_username()
+        myself = True if request.user==posts[i].user else False
+        data.append(posts[i].serialize())
+        data[i]['username'] = username
+        data[i]['myself'] = myself
 
-        for i in range(len(posts)):
-            username = posts[i].user.get_username()
-            entry = posts[i].serialize()
-            data.append(entry)
-            data[i]['username'] = username
-            
-        return JsonResponse(data, safe=False)
+    paginator = Paginator(data, 10)
+    finalData = []
+    for i in range(paginator.num_pages):
+        finalData.append(paginator.page(i + 1).object_list)
+        
+    return JsonResponse(finalData, safe=False)
     
 
 def test_posts(request): 
@@ -118,9 +123,10 @@ def test_posts(request):
     posts = posts.order_by("-timestamp").all()
     for i in range(len(posts)):
         username = posts[i].user.get_username()
-        entry = posts[i].serialize()
-        data.append(entry)
+        myself = True if user==posts[i].user else False
+        data.append(posts[i].serialize())
         data[i]['username'] = username
+        data[i]['myself'] = myself
 
     paginator = Paginator(data, 10)
     finalData = []
@@ -142,9 +148,16 @@ def followed_posts(request):
         posts = posts.order_by("-timestamp").all()
         for i in range(len(posts)):
             data.append(posts[i].serialize())
+            myself = True if user==posts[i].user else False
             data[len(data) - 1]['username'] = posts[i].user.get_username()    
+            data[len(data) - 1]['myself'] = myself    
         
-    return JsonResponse(data, safe=False)
+    paginator = Paginator(data, 10)
+    finalData = []
+    for i in range((paginator.num_pages)):
+        finalData.append(paginator.page(i + 1).object_list)
+
+    return JsonResponse(finalData, safe=False)
 
 
 def show_profile(request, user):
@@ -163,19 +176,30 @@ def show_profile(request, user):
     if request.user == user:
         myself =True
 
+    username = posts[0].user.get_username()
+
     info = {
-        'username': posts[0].user.get_username(),
+        'username': username,
         'following': len(user.following.all()),
         'followers': len(user.followers.all()),
         'follow': follow,
         'myself': myself
     }
     
-    data.append(info)    
+    
     for i in range(len(posts)):
         data.append(posts[i].serialize())
+        data[i]['username'] = username
+        data[i]['myself'] = myself
+
+    paginator = Paginator(data, 10)
+    finalData = []
+    for i in range(paginator.num_pages):
+        finalData.append(paginator.page(i+1).object_list)
     
-    return JsonResponse(data, safe=False)
+    finalData.insert(0, info)
+    
+    return JsonResponse(finalData, safe=False)
 
 @csrf_exempt
 def follow_user(request):
