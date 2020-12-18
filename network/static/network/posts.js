@@ -1,3 +1,5 @@
+var openEdit = false;
+
 document.addEventListener('DOMContentLoaded', function() {
         
     document.querySelector('#post').addEventListener('click', () => post_post());
@@ -6,6 +8,11 @@ document.addEventListener('DOMContentLoaded', function() {
     load_posts();
   });
 
+function test() {
+    console.log("Test successful");
+}
+  
+  
 //Since we have uniform post_format function this just handles the display values of the app areas
 function load_posts() {
     document.querySelector('#form-view').style.display = 'block';
@@ -117,22 +124,42 @@ function post_format(data) {
     
     div.innerHTML = `
       <table class="postTable">
-      <tr><td><button class="username-button">${data[i].username}</button></td>${ data[i].myself ? `<button class="btn btn-alert btn-sm">Edit</button>`: ``}<td></td></tr>
-      <tr><td><div class="gap-10"></div></td></tr>
-      <tr><td>${data[i].comment}</td></tr>
-      <tr><td class="timestamp">${data[i].timestamp}</td></tr>
-      <tr><td>&#10084;&#65039; (Like count)</td> <td class="like-button"><button class="btn btn-danger btn-sm">Like</button></td></tr>
+        <tr><td><button class="username-button">${data[i].username}</button></td></tr>
+        <tr><td><div class="gap-10"></div></td></tr>
+        <tr><td>${data[i].comment}</td>
+        ${ data[i].myself ? `<td id="edit${i}" class="edit-button"><button class="btn btn-warning btn-sm">Edit</button></td></tr>` : `</tr>`}
+        <tr><td class="timestamp">${data[i].timestamp}</td></tr>
+        <tr><td>&#10084;&#65039; (Like count)</td> <td class="like-button"><button class="btn btn-danger btn-sm">Like</button></td></tr>
       </table>
     `
     
     div.querySelector(".username-button").addEventListener('click', () => load_profile(data[i].user));
     div.querySelector('.like-button').addEventListener('click', () => test());
+    if (data[i].myself === true) {
+        div.querySelector('.edit-button').addEventListener('click', () => edit_post(i));    
+    }
     
     mainContainer.appendChild(div);
   }
   console.log(data);
-  console.log(data[0].myself);
 }
+
+//Edit a post
+function edit_post(number) {
+    if (openEdit === false) {
+        oldPost = document.querySelector(`#edit${number}`).parentElement.firstElementChild.innerHTML;
+        area = document.querySelector(`#edit${number}`).parentElement;
+        area.innerHTML = `<form><div class="form-group"><textarea class="form-control" id="edit-post-form">${oldPost}</textarea><br></div><button type="submit" class="btn btn-primary">Post</  button>&nbsp;&nbsp;<button type="submit" class="btn btn-primary" id="cancel-button">Cancel</button></form>`;
+        area.querySelector('#cancel-button').addEventListener('click', () => test());
+        openEdit = true;
+    }
+}
+
+//Remove edit form and replace with old post
+function stop_edit_post(post, number) {
+    //document.querySelector
+}
+
 
 //Test function for paginated response handling, have to apply to every function now
 function paginate_posts(posts) { 
