@@ -53,6 +53,9 @@ html *{
 .username-button {
     background: none;
     border: none;
+    background-color: rgb(87, 181, 197);
+    color: rgb(248, 229, 229);
+    border-radius: 5px;
 }
 
 .profile-info {

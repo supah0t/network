@@ -12,6 +12,7 @@ from django.forms.models import model_to_dict
 from django.core import serializers
 from .models import User
 from django.core.paginator import Paginator
+from datetime import datetime
 
 
 def index(request):
@@ -88,7 +89,8 @@ def new_post(request):
     
     comment = Comment(
         user = user,
-        comment = post
+        comment = post,
+        likes = 0
     )
     comment.save()
     
@@ -104,9 +106,11 @@ def edit_post(request):
     postId = data.get("id", "mistake")
     post = Comment.objects.get(pk=postId)
     post.comment = postText
+    post.editTimestamp = datetime.now()
+    post.likes = 0
     post.save()
     
-    return JsonResponse({"message": "Post posted successfully"}, status=201)
+    return JsonResponse({"message": f"editTime: {post.editTimestamp}, likes: {post.likes}"}, status=201)
     
     
 #Super awesome inefficient way to add a value to the response data. Works tho

@@ -102,14 +102,14 @@ function post_post() {
     fetch('/post', {
         method: 'POST',
         body: JSON.stringify({
-          "comment": post
+            "comment": post
         })
-      })
-      .then(response => response.json())
-      .then(result => {
+    })
+    .then(response => response.json())
+    .then(result => {
         //Print result
         console.log(result);
-      });
+    });
 }
 
 //Presents posts from django response in a uniform way for the whole app
@@ -128,13 +128,14 @@ function post_format(data) {
         <tr><td><div class="gap-10"></div></td></tr>
         <tr id="edit${i}"><td class="post-area">${data[i].comment}</td>
         ${ data[i].myself ? `<td class="edit-button"><button class="btn btn-warning btn-sm">Edit</button></td></tr>` : `</tr>`}
-        <tr><td class="edit-timestamp"></td></tr>
-        <tr><td>&#10084;&#65039; (Like count)</td> <td class="like-button"><button class="btn btn-danger btn-sm">Like</button></td></tr>
+        <tr><td class="edit-timestamp">${data[i].latestEdit != null ? `(Edited on ${data[i].latestEdit})` : ``}</td></tr>
+        <tr><td class="timestamp">${data[i].timestamp}</td></tr>
+        <tr><td>&#10084;&#65039; ${data[i].likes == "likes" ? `0` : `${data[i].likes}` }</td> <td class="like-button"><button class="btn btn-danger btn-sm">Like</button></td></tr>
       </table>
     `
     
     div.querySelector(".username-button").addEventListener('click', () => load_profile(data[i].user));
-    div.querySelector('.like-button').addEventListener('click', () => test());
+    div.querySelector('.like-button').addEventListener('click', () => like_post(i, data[i].id));
     if (data[i].myself === true) {
         div.querySelector('.edit-button').addEventListener('click', () => edit_post(i, data[i].id));    
     }
@@ -142,6 +143,10 @@ function post_format(data) {
     mainContainer.appendChild(div);
   }
   console.log(data);
+}
+
+function like_post(number, id) {
+    console.log(`Liked post: ${number} with id: ${id}`);
 }
 
 //Edit a post
@@ -159,13 +164,6 @@ function edit_post(number, id) {
 
 function post_edit(oldPost, number, id) {
     newPost = document.querySelector(`#edit-post-form`).value;
-    
-    //For adding edit timestamp in the future
-    //currentTable = document.querySelector(`#post-table${number}`);
-    //let today = new Date();
-    //let date = today.getDate() + '-' + (today.getMont()+1) + '-' + today.getFullYear();
-    //let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-    //let dateTime = date+' '+time;
     
     fetch('/edit', {
         method: 'POST',

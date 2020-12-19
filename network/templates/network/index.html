@@ -13,7 +13,7 @@
         {% if user.is_authenticated %}
             <h1 class="header">All Posts</h1>
             <div class="element-box">
-                <form id="post-form" class="comment-form">
+                <form id="post-form" class="comment-form" onsubmit="return false;">
                     <h3>New Post</h3>
                     {% csrf_token %}
                     {{ form }}
@@ -28,7 +28,7 @@
     
     <div id="post-list"></div>
 
-        <div id="page-button"></div>
+    <div id="page-button"></div>
     
 {% endblock %}
 
