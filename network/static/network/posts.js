@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
     document.querySelector('#post').addEventListener('click', () => post_post());
     document.querySelector('.following-menu').addEventListener('click', () => load_following_posts());
-    
     load_posts();
   });
 
@@ -126,8 +125,8 @@ function post_format(data) {
       <table class="postTable">
         <tr><td><button class="username-button">${data[i].username}</button></td></tr>
         <tr><td><div class="gap-10"></div></td></tr>
-        <tr><td>${data[i].comment}</td>
-        ${ data[i].myself ? `<td id="edit${i}" class="edit-button"><button class="btn btn-warning btn-sm">Edit</button></td></tr>` : `</tr>`}
+        <tr id="edit${i}"><td class="post-area">${data[i].comment}</td>
+        ${ data[i].myself ? `<td class="edit-button"><button class="btn btn-warning btn-sm">Edit</button></td></tr>` : `</tr>`}
         <tr><td class="timestamp">${data[i].timestamp}</td></tr>
         <tr><td>&#10084;&#65039; (Like count)</td> <td class="like-button"><button class="btn btn-danger btn-sm">Like</button></td></tr>
       </table>
@@ -136,7 +135,7 @@ function post_format(data) {
     div.querySelector(".username-button").addEventListener('click', () => load_profile(data[i].user));
     div.querySelector('.like-button').addEventListener('click', () => test());
     if (data[i].myself === true) {
-        div.querySelector('.edit-button').addEventListener('click', () => edit_post(i));    
+        div.querySelector('.edit-button').addEventListener('click', () => edit_post(i, data[i].id));    
     }
     
     mainContainer.appendChild(div);
@@ -145,19 +144,48 @@ function post_format(data) {
 }
 
 //Edit a post
-function edit_post(number) {
+function edit_post(number, id) {
     if (openEdit === false) {
-        oldPost = document.querySelector(`#edit${number}`).parentElement.firstElementChild.innerHTML;
-        area = document.querySelector(`#edit${number}`).parentElement;
-        area.innerHTML = `<form><div class="form-group"><textarea class="form-control" id="edit-post-form">${oldPost}</textarea><br></div><button type="submit" class="btn btn-primary">Post</  button>&nbsp;&nbsp;<button type="submit" class="btn btn-primary" id="cancel-button">Cancel</button></form>`;
-        area.querySelector('#cancel-button').addEventListener('click', () => test());
+        oldText = document.querySelector(`#edit${number}`).firstElementChild.innerHTML;
+        area = document.querySelector(`#edit${number}`);
+        oldPost = area.innerHTML;
+        area.innerHTML = `<form><div class="form-group"><textarea class="form-control" id="edit-post-form">${oldText}</textarea><br></div><button type="submit" id="post-edit" class="btn btn-primary btn-sm">Post</button>&nbsp;&nbsp;<button type="submit" class="btn btn-primary btn-sm" id="cancel-button">Cancel</button></form>`;
+        area.querySelector('#cancel-button').addEventListener('click', () => stop_edit_post(oldPost, number));
+        area.querySelector('#post-edit').addEventListener('click', () => post_edit(oldPost, number, id)) 
         openEdit = true;
     }
 }
 
+function post_edit(oldPost, number, id) {
+    newPost = document.querySelector(`#edit-post-form`).value;
+    
+    fetch('/edit', {
+        method: 'POST',
+        body: JSON.stringify({
+          "comment": newPost,
+          "id": id
+        })
+    })
+    .then(response => response.json())
+    .then(result => {
+        //Print result
+        console.log(result);
+        
+        area = document.querySelector(`#edit${number}`);
+        area.innerHTML = oldPost
+        area.querySelector('.post-area').innerHTML = newPost;
+        
+        openEdit = false;
+    });
+      
+}
+
 //Remove edit form and replace with old post
 function stop_edit_post(post, number) {
-    //document.querySelector
+    area = document.querySelector(`#edit${number}`);
+    area.innerHTML = post;
+    area.querySelector('.edit-button').addEventListener('click', () => edit_post(number));
+    openEdit = false;
 }
 
 
