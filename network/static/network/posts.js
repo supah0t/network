@@ -120,6 +120,7 @@ function post_format(data) {
   for (let i=0; i<data.length; i++) {
     let div = document.createElement("div");
     div.className = "postList";
+    div.id = `post-table${i}`;
     
     div.innerHTML = `
       <table class="postTable">
@@ -127,7 +128,7 @@ function post_format(data) {
         <tr><td><div class="gap-10"></div></td></tr>
         <tr id="edit${i}"><td class="post-area">${data[i].comment}</td>
         ${ data[i].myself ? `<td class="edit-button"><button class="btn btn-warning btn-sm">Edit</button></td></tr>` : `</tr>`}
-        <tr><td class="timestamp">${data[i].timestamp}</td></tr>
+        <tr><td class="edit-timestamp"></td></tr>
         <tr><td>&#10084;&#65039; (Like count)</td> <td class="like-button"><button class="btn btn-danger btn-sm">Like</button></td></tr>
       </table>
     `
@@ -151,13 +152,20 @@ function edit_post(number, id) {
         oldPost = area.innerHTML;
         area.innerHTML = `<form><div class="form-group"><textarea class="form-control" id="edit-post-form">${oldText}</textarea><br></div><button type="submit" id="post-edit" class="btn btn-primary btn-sm">Post</button>&nbsp;&nbsp;<button type="submit" class="btn btn-primary btn-sm" id="cancel-button">Cancel</button></form>`;
         area.querySelector('#cancel-button').addEventListener('click', () => stop_edit_post(oldPost, number));
-        area.querySelector('#post-edit').addEventListener('click', () => post_edit(oldPost, number, id)) 
+        area.querySelector('#post-edit').addEventListener('click', () => post_edit(oldPost, number, id)); 
         openEdit = true;
     }
 }
 
 function post_edit(oldPost, number, id) {
     newPost = document.querySelector(`#edit-post-form`).value;
+    
+    //For adding edit timestamp in the future
+    //currentTable = document.querySelector(`#post-table${number}`);
+    //let today = new Date();
+    //let date = today.getDate() + '-' + (today.getMont()+1) + '-' + today.getFullYear();
+    //let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    //let dateTime = date+' '+time;
     
     fetch('/edit', {
         method: 'POST',
