@@ -107,10 +107,28 @@ def edit_post(request):
     post = Comment.objects.get(pk=postId)
     post.comment = postText
     post.editTimestamp = datetime.now()
-    post.likes = 0
     post.save()
     
     return JsonResponse({"message": f"editTime: {post.editTimestamp}, likes: {post.likes}"}, status=201)
+
+@csrf_exempt
+def like_post(request):
+    if request.method != "POST":
+        return JsonResponse({'error': 'POST request required'}, status=400)
+    data = json.loads(request.body)
+    postId = data.get("id", "")
+    post = Comment.objects.get(pk=postId)
+    user = request.user
+    if post in user.liked.all():
+        user.liked.remove(postId)
+        post.likes = 0 if (int(post.likes) == 0) else (int(post.likes) - 1)
+        post.save()
+        return JsonResponse({'message': f'Post {postId} unliked! It has {post.likes} likes'}, status=201)
+    else:
+        user.liked.add(postId)
+        post.likes = 1 if (post.likes=="likes") else (int(post.likes) + 1)
+        post.save()
+        return JsonResponse({'message': f'Post {postId} liked! It has {post.likes} likes'}, status=201)
     
     
 #Super awesome inefficient way to add a value to the response data. Works tho
@@ -126,6 +144,9 @@ def show_posts(request):
         data.append(posts[i].serialize())
         data[i]['username'] = username
         data[i]['myself'] = myself
+        data[i]['liked'] = False
+        if posts[i] in request.user.liked.all():
+            data[i]['liked'] = True
 
     paginator = Paginator(data, 10)
     finalData = []
@@ -149,6 +170,9 @@ def followed_posts(request):
             myself = True if user==posts[i].user else False
             data[len(data) - 1]['username'] = posts[i].user.get_username() 
             data[len(data) - 1]['myself'] = myself
+            data[len(data) - 1]['liked'] = False
+            if posts[i] in request.user.liked.all():
+                data[len(data) - 1]['liked'] = True
 
     paginator = Paginator(data, 10)
     finalData = []
@@ -156,7 +180,6 @@ def followed_posts(request):
         finalData.append(paginator.page(i + 1).object_list)
 
     return JsonResponse(finalData, safe=False)
-
 
 def show_profile(request, user):
     
@@ -187,6 +210,9 @@ def show_profile(request, user):
         data.append(posts[i].serialize())
         data[i]['username'] = username
         data[i]['myself'] = myself
+        data[i]['liked'] = False
+        if posts[i] in request.user.liked.all():
+            data[i]['liked'] = True
 
     paginator = Paginator(data, 10)
     finalData = []

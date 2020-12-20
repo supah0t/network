@@ -2,6 +2,10 @@ html *{
     font-family: Arial, Helvetica, sans-serif !important;
 }
 
+hr {
+    border-top: 1px solid rgba(0,0,0,.3);
+}
+
 .gap-10 {
     margin-top: 10px;
 }
@@ -54,7 +58,7 @@ html *{
     background: none;
     border: none;
     background-color: rgb(87, 181, 197);
-    color: rgb(248, 229, 229);
+    color: white;
     border-radius: 5px;
 }
 

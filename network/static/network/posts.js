@@ -128,14 +128,16 @@ function post_format(data) {
         <tr><td><div class="gap-10"></div></td></tr>
         <tr id="edit${i}"><td class="post-area">${data[i].comment}</td>
         ${ data[i].myself ? `<td class="edit-button"><button class="btn btn-warning btn-sm">Edit</button></td></tr>` : `</tr>`}
+        <tr><td><hr></td></tr>
         <tr><td class="edit-timestamp">${data[i].latestEdit != null ? `(Edited on ${data[i].latestEdit})` : ``}</td></tr>
         <tr><td class="timestamp">${data[i].timestamp}</td></tr>
-        <tr><td>&#10084;&#65039; ${data[i].likes == "likes" ? `0` : `${data[i].likes}` }</td> <td class="like-button"><button class="btn btn-danger btn-sm">Like</button></td></tr>
+        <tr><td>&#10084;&#65039; <span class="like-area${i}">${data[i].likes == "likes" ? `0` : `${data[i].likes}` }</span> </td> <td class="like-button"><button id="like-button${i}" class="btn btn-danger btn-sm">${data[i].liked == false ? `Like` : `Unlike`}</button></td></tr>
       </table>
     `
     
     div.querySelector(".username-button").addEventListener('click', () => load_profile(data[i].user));
-    div.querySelector('.like-button').addEventListener('click', () => like_post(i, data[i].id));
+    const like_post_function = () => like_post(i, data[i].id, data[i].liked);
+    div.querySelector(`#like-button${i}`).addEventListener('click', like_post_function)
     if (data[i].myself === true) {
         div.querySelector('.edit-button').addEventListener('click', () => edit_post(i, data[i].id));    
     }
@@ -145,8 +147,36 @@ function post_format(data) {
   console.log(data);
 }
 
-function like_post(number, id) {
-    console.log(`Liked post: ${number} with id: ${id}`);
+function like_post(number, id, liked) {
+    
+    const like_post_function = () => like_post(number, id, liked);
+    const nolike_post_function = () => like_post(number, id, !liked);
+    
+    fetch('/like', {
+        method: 'POST', 
+        body: JSON.stringify({
+            "id": id
+        })
+    })
+    .then(response => response.json())
+    .then(result => {
+        console.log(result);
+        likeNumber = parseInt(document.querySelector(`.like-area${number}`).innerHTML);
+        if (liked === true) {
+            document.querySelector(`.like-area${number}`).innerHTML = likeNumber - 1;
+            document.querySelector(`#like-button${number}`).innerHTML = "Like";
+            document.querySelector(`#like-button${number}`).removeEventListener('click', like_post_function);
+            document.querySelector(`#like-button${number}`).removeEventListener('click', nolike_post_function);
+            document.querySelector(`#like-button${number}`).addEventListener('click', nolike_post_function);
+        } else {
+            document.querySelector(`.like-area${number}`).innerHTML = likeNumber + 1;
+            document.querySelector(`#like-button${number}`).innerHTML = "Unlike";
+            document.querySelector(`#like-button${number}`).removeEventListener('click', like_post_function);
+            document.querySelector(`#like-button${number}`).removeEventListener('click', nolike_post_function);
+            document.querySelector(`#like-button${number}`).addEventListener('click', nolike_post_function);
+        }
+        
+    });
 }
 
 //Edit a post
