@@ -6,11 +6,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('.following-menu').addEventListener('click', () => load_following_posts());
     load_posts();
   });
-
-function test() {
-    console.log("Test successful");
-}
-  
   
 //Since we have uniform post_format function this just handles the display values of the app areas
 function load_posts() {
@@ -38,7 +33,6 @@ function load_following_posts() {
   fetch('/followed_posts')
   .then(response => response.json())
   .then(posts => {
-    history.pushState('', 'Following', `/following`);
     paginate_posts(posts);
   });
 }
@@ -51,21 +45,18 @@ function load_profile(id) {
     document.querySelector('#profile-view').style.display = 'block';   
     document.querySelector('#profile-view').innerHTML = '';
     
-    //history.pushState('', 'Profile', `/${id}`);
-    console.log('Profile View');    
     fetch(`/${id}`)
     .then(response => response.json())
     .then(posts => {
         
         data = posts;
         info = data.shift();
-        let mainContainer = document.getElementById("post-list");
         let profileContainer = document.getElementById("profile-view");
         let divOne = document.createElement('div');
-        divOne.className = 'profileView';
+        divOne.className = 'profile-area';
         divOne.innerHTML = `
           <div class="profile-info">
-            <pre>${info.username}   Followers: ${info.followers}    Following: ${info.following}</pre>
+            <pre> ${info.username}   Followers: ${info.followers}    Following: ${info.following}</pre>
             ${info.follow ? `<button id="follow-button" class="btn btn-danger btn-sm">Unfollow</button>` : `<button id="follow-button" class="btn btn-danger btn-sm">Follow</button>`}
           </div>
         `
@@ -91,7 +82,6 @@ function follow_user(id, follow) {
   })
   .then(response => response.json())
   .then(result => {
-    console.log(result);
     load_profile(id);
   })
 }
@@ -108,7 +98,6 @@ function post_post() {
     .then(response => response.json())
     .then(result => {
         //Print result
-        console.log(result);
     });
 }
 
@@ -136,22 +125,20 @@ function post_format(data) {
     `
     
     div.querySelector(".username-button").addEventListener('click', () => load_profile(data[i].user));
-    const like_post_function = () => like_post(i, data[i].id, data[i].liked);
-    div.querySelector(`#like-button${i}`).addEventListener('click', like_post_function)
+    //div.querySelector(`#like-button${i}`).addEventListener('click', () => like_post(i, data[i].id));
+    div.querySelector(`#like-button${i}`).addEventListener('click', function() {
+        like_post(i, data[i].id);
+    });
+    
     if (data[i].myself === true) {
         div.querySelector('.edit-button').addEventListener('click', () => edit_post(i, data[i].id));    
     }
     
     mainContainer.appendChild(div);
   }
-  console.log(data);
 }
 
-function like_post(number, id, liked) {
-    
-    const like_post_function = () => like_post(number, id, liked);
-    const nolike_post_function = () => like_post(number, id, !liked);
-    
+function like_post(number, id) {
     fetch('/like', {
         method: 'POST', 
         body: JSON.stringify({
@@ -159,23 +146,10 @@ function like_post(number, id, liked) {
         })
     })
     .then(response => response.json())
-    .then(result => {
-        console.log(result);
+    .then(post => {
         likeNumber = parseInt(document.querySelector(`.like-area${number}`).innerHTML);
-        if (liked === true) {
-            document.querySelector(`.like-area${number}`).innerHTML = likeNumber - 1;
-            document.querySelector(`#like-button${number}`).innerHTML = "Like";
-            document.querySelector(`#like-button${number}`).removeEventListener('click', like_post_function);
-            document.querySelector(`#like-button${number}`).removeEventListener('click', nolike_post_function);
-            document.querySelector(`#like-button${number}`).addEventListener('click', nolike_post_function);
-        } else {
-            document.querySelector(`.like-area${number}`).innerHTML = likeNumber + 1;
-            document.querySelector(`#like-button${number}`).innerHTML = "Unlike";
-            document.querySelector(`#like-button${number}`).removeEventListener('click', like_post_function);
-            document.querySelector(`#like-button${number}`).removeEventListener('click', nolike_post_function);
-            document.querySelector(`#like-button${number}`).addEventListener('click', nolike_post_function);
-        }
-        
+        document.querySelector(`.like-area${number}`).innerHTML = parseInt(post.likes);
+        document.querySelector(`#like-button${number}`).innerHTML = post.liked === true ? `Unlike`: `Like`;
     });
 }
 
@@ -205,7 +179,6 @@ function post_edit(oldPost, number, id) {
     .then(response => response.json())
     .then(result => {
         //Print result
-        console.log(result);
         
         area = document.querySelector(`#edit${number}`);
         area.innerHTML = oldPost
@@ -235,7 +208,6 @@ function paginate_posts(posts) {
   buttonDiv.appendChild(buttonList);
   
   for (let i=0; i<posts.length; i++) {
-    console.log(posts[i]);
     let button = document.createElement("li");
     button.className="page-item";
     button.id=`button${i}`

@@ -123,12 +123,12 @@ def like_post(request):
         user.liked.remove(postId)
         post.likes = 0 if (int(post.likes) == 0) else (int(post.likes) - 1)
         post.save()
-        return JsonResponse({'message': f'Post {postId} unliked! It has {post.likes} likes'}, status=201)
+        return JsonResponse({'likes': f'{post.likes}', 'liked': False})
     else:
         user.liked.add(postId)
         post.likes = 1 if (post.likes=="likes") else (int(post.likes) + 1)
         post.save()
-        return JsonResponse({'message': f'Post {postId} liked! It has {post.likes} likes'}, status=201)
+        return JsonResponse({'likes': f'{post.likes}', 'liked': True})
     
     
 #Super awesome inefficient way to add a value to the response data. Works tho

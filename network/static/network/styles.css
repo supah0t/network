@@ -40,6 +40,15 @@ hr {
     width: 40%;
 }
 
+.profile-area {
+    border-style: solid;
+    border-width: 2px;
+    border-color: rgb(194, 193, 193);
+    border-radius: 10px;
+    margin: 10px auto;
+    width: 80%;
+}
+
 .postTable {
     margin: 10px;
     width: 100%;
@@ -92,4 +101,8 @@ hr {
 
 .form-group {
     margin-bottom: 0;
+}
+
+.like-button {
+    width: 25%;
 }
