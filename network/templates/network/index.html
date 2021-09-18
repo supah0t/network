@@ -1,0 +1,37 @@
+{% extends "network/layout.html" %}
+{% load static %}
+
+{% block button %}
+    <li class="nav-item">
+        <p class="following-menu">Following</p>
+    </li>
+{% endblock %}
+
+{% block body %}
+
+    <div id="form-view">
+        {% if user.is_authenticated %}
+            <h1 class="header">All Posts</h1>
+            <div class="element-box">
+                <form id="post-form" class="comment-form" onsubmit="return false;">
+                    <h3>New Post</h3>
+                    {% csrf_token %}
+                    {{ form }}
+                    <div class="gap-10"></div>
+                    <button id="post" type="submit" class="btn btn-primary">Post</button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div id="profile-view"></div>
+    
+    <div id="post-list"></div>
+
+    <div id="page-button"></div>
+    
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'network/posts.js' %}"></script>
+{% endblock %}
